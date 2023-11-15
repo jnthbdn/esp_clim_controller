@@ -8,7 +8,8 @@
 #include "utils.h"
 #include "panasonic_remote.h"
 
-constexpr byte led_ir = D7;
+constexpr byte led_ir_pwm = D7;
+constexpr byte led_ir_command = D8;
 constexpr byte led_r  = D2;
 constexpr byte led_g  = D3;
 constexpr byte led_b  = D4;
@@ -18,7 +19,7 @@ bool isAP = false;
 ESP8266WebServer webServer(80);
 EEPROM_Settings settings;
 SettingServer settingServer("IR Remote", settings);
-PanasonicRemote remote(led_ir);
+PanasonicRemote remote(led_ir_pwm, led_ir_command);
 
 bool isOn = false;
 uint8_t temperature = 16;

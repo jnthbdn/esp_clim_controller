@@ -19,7 +19,7 @@ enum StreamMode{
 
 class PanasonicRemote{
     public:
-        PanasonicRemote(byte pin_led) : pin_led{pin_led}, data{ new uint8_t[PANASONIC_DATA_SIZE] }{
+        PanasonicRemote(byte pin_pwm, byte pin_led) : pin_pwm{pin_pwm}, pin_led{pin_led}, data{ new uint8_t[PANASONIC_DATA_SIZE] }{
             // Header
             data[0] = 0b00000010;
             data[1] = 0b00100000;
@@ -53,10 +53,12 @@ class PanasonicRemote{
         }
 
         void init(){
-            pinMode(pin_led, OUTPUT);
+            pinMode(pin_pwm, OUTPUT);
             analogWriteRange(1024);
             analogWriteFreq(38000);
-            analogWrite(pin_led, 0);
+            analogWrite(pin_pwm, 512);
+            pinMode(pin_led, OUTPUT);
+            digitalWrite(pin_led, LOW);
         }
 
         PanasonicRemote& turnOn(){
@@ -100,8 +102,8 @@ class PanasonicRemote{
 
             if( 16 <= temp && temp <= 30){
 
-                data[14] &= 0b10000011;
-                data[14] |= constrain(temp, 16, 30) << 1;
+                data[14] &= 0b11000001;
+                data[14] |= temp << 1;
 
                 if( half && temp < 30){
                     setBit(14, 0);
@@ -154,15 +156,16 @@ class PanasonicRemote{
         }
 
     private:
+        byte pin_pwm;
         byte pin_led;
         uint8_t* data;
 
         inline void set_high(){
-            analogWrite(pin_led, 512);
+            digitalWrite(pin_led, HIGH);
         }
 
         inline void set_low(){
-            analogWrite(pin_led, 0);
+            digitalWrite(pin_led, LOW);
         }
 
         void setBit(uint8_t byte, uint8_t bit){
